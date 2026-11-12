@@ -1,0 +1,27 @@
+digraph UML_modelo {
+  rankdir=TB; nodesep=0.5; ranksep=0.7; label="Diagrama de clases 1: paquete modelo"; labelloc=t; fontname="Helvetica-Bold"; fontsize=18;
+  node [shape=record, fontname="Helvetica", fontsize=13, style=filled, fillcolor="#FFFFFF"];
+  edge [fontname="Helvetica", fontsize=12, arrowsize=0.9];
+
+  Cliente [label="{Cliente|-codigo : String\l-nombreCompleto : String\l-identidad : String\l-telefono : String\l-direccion : String\l}"];
+  Vehiculo [label="{Vehiculo|-placa : String\l-marca : String\l-modelo : String\l-anio : int\l-color : String\l}"];
+  Servicio [label="{Servicio|-codigo : String\l-descripcion : String\l-precioBase : double\l-tiempoEstimado : int\l}"];
+  Repuesto [label="{Repuesto|-codigo : String\l-nombre : String\l-cantidad : int\l-precioUnitario : double\l-stockMinimo : int\l|+aumentar(int)\l+descontar(int)\l+estaBajoMinimo() : boolean\l}"];
+  DetR [label="{DetalleRepuesto|-cantidad : int\l|+getSubtotal() : double\l}"];
+  Orden [label="{OrdenTrabajo|-numero : String\l-fecha : LocalDate\l-diagnostico : String\l-mecanico : String\l-estado : EstadoOrden\l-inventarioDescontado : boolean\l|+calcularSubtotalServicios() : double\l+calcularSubtotalRepuestos() : double\l+calcularTotal() : double\l}"];
+  Estado [label="{«enumeration»\nEstadoOrden|PENDIENTE\lEN_PROCESO\lFINALIZADA\lCANCELADA\l}"];
+  Factura [label="{Factura|-numero : String\l-fecha : LocalDate\l-subtotalServicios : double\l-subtotalRepuestos : double\l-porcentajeImpuesto : double\l-impuesto : double\l-total : double\l-pagada : boolean\l-montoRecibido : double\l-cambio : double\l|+registrarPago(double)\l+deshacerPago()\l}"];
+  Operacion [label="{Operacion|-tipo : String\l-descripcion : String\l-objeto : Object\l-extra : Object\l-cantidad : int\l}"];
+  Exc [label="{StockInsuficienteException|«extends Exception»\l}"];
+
+  Cliente -> Vehiculo [arrowhead=none, taillabel="1", headlabel="0..*", label=" propietario"];
+  Orden -> Cliente [arrowhead=vee, taillabel="*", headlabel="1"];
+  Orden -> Vehiculo [arrowhead=vee, taillabel="*", headlabel="1"];
+  Orden -> Servicio [arrowhead=vee, taillabel="*", headlabel="*", label=" servicios"];
+  Orden -> DetR [arrowtail=diamond, dir=back, taillabel="1", headlabel="*", label=" repuestos"];
+  DetR -> Repuesto [arrowhead=vee, taillabel="*", headlabel="1"];
+  Orden -> Estado [arrowhead=vee];
+  Factura -> Orden [arrowhead=vee, taillabel="0..1", headlabel="1"];
+  Factura -> Cliente [arrowhead=vee, taillabel="*", headlabel="1"];
+  Repuesto -> Exc [style=dashed, arrowhead=vee, label=" lanza"];
+}

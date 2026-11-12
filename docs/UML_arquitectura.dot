@@ -1,0 +1,55 @@
+digraph UML_arquitectura {
+  rankdir=TB; nodesep=0.4; ranksep=0.7; compound=true; label="Diagrama de clases 2: arquitectura MVC (vista, controlador, repositorio, hilos y excepciones)"; labelloc=t; fontname="Helvetica-Bold"; fontsize=16;
+  node [shape=record, fontname="Helvetica", fontsize=12, style=filled, fillcolor="#FFFFFF"];
+  edge [fontname="Helvetica", fontsize=11, arrowsize=0.8];
+
+  subgraph cluster_main { label="main"; style=filled; fillcolor="#F4F6F7"; fontname="Helvetica-Bold";
+    Main [label="{Main|+main(String[])\l}"];
+  }
+  subgraph cluster_vista { label="vista"; style=filled; fillcolor="#EAF2F8"; fontname="Helvetica-Bold";
+    VentanaPrincipal [label="{VentanaPrincipal\n(extiende JFrame)||-deshacer()\l}"];
+    PanelBase [label="{«abstract»\nPanelBase\n(extiende JPanel)||+actualizar()\l#mostrarError(Exception)\l#mostrarMensaje(String)\l}"];
+    Paneles [label="{PanelClientes\lPanelVehiculos\lPanelServicios\lPanelRepuestos\lPanelOrdenes\lPanelFacturacion\lPanelReportes||+actualizar()\l}"];
+    Canvas [label="{CanvasReporte2D\n(extiende JPanel)||+mostrar(String[], double[])\l#paintComponent(Graphics)\l}"];
+  }
+  subgraph cluster_hilos { label="hilos"; style=filled; fillcolor="#FEF9E7"; fontname="Helvetica-Bold";
+    Hilo [label="{ProcesoServicioHilo\n(implementa Runnable)||+run()\l}"];
+  }
+  subgraph cluster_ctrl { label="controlador"; style=filled; fillcolor="#EAFAF1"; fontname="Helvetica-Bold";
+    Ctrl1 [label="{ClienteController\lVehiculoController\lServicioController\lRepuestoController||+registrar(...)\l+buscar(...)\l+listar()\l}"];
+    OrdenCtrl [label="{OrdenController||+crear(...)\l+agregarServicio(...)\l+agregarRepuesto(...)\l+iniciarProcesamiento(...)\l+finalizarOrden(...)\l+cancelar(...)\l}"];
+    FacturaCtrl [label="{FacturaController||+generar(...)\l+registrarPago(...)\l+setPorcentajeImpuesto(...)\l}"];
+    ReporteCtrl [label="{ReporteController||+ingresosPorServicio()\l+ordenesPorEstado()\l}"];
+    HistorialCtrl [label="{HistorialController|-pila : Stack\<Operacion\>\l|+registrar(Operacion)\l+deshacerUltima()\l}"];
+  }
+  subgraph cluster_repo { label="repositorio"; style=filled; fillcolor="#FDEDEC"; fontname="Helvetica-Bold";
+    Repo [label="{RepositorioGenerico\<T\>|-lista : ArrayList\<T\>\l-mapa : HashMap\<String, T\>\l|+agregar(String, T)\l+buscar(String) : T\l+existe(String) : boolean\l+eliminar(String)\l+listar() : ArrayList\<T\>\l}"];
+  }
+  subgraph cluster_exc { label="excepciones"; style=filled; fillcolor="#FDF2E9"; fontname="Helvetica-Bold";
+    Exc [label="{StockInsuficienteException\lClienteNoEncontradoException\lPagoInsuficienteException|«extienden Exception»\l}"];
+  }
+  Modelo [label="{modelo|Cliente, Vehiculo, Servicio, Repuesto,\lDetalleRepuesto, OrdenTrabajo,\lEstadoOrden, Factura, Operacion\l}", fillcolor="#F2F4F4"];
+
+  Main -> VentanaPrincipal [style=dashed, arrowhead=vee, label=" crea"];
+  VentanaPrincipal -> PanelBase [arrowhead=odiamond, headlabel="7", label=" pestañas"];
+  Paneles -> PanelBase [arrowhead=empty, label=" hereda"];
+  Paneles -> Canvas [arrowhead=diamond, headlabel="2", label=" PanelReportes"];
+  Paneles -> Ctrl1 [style=dashed, arrowhead=vee];
+  Paneles -> OrdenCtrl [style=dashed, arrowhead=vee];
+  Paneles -> FacturaCtrl [style=dashed, arrowhead=vee];
+  Paneles -> ReporteCtrl [style=dashed, arrowhead=vee];
+  Paneles -> Hilo [style=dashed, arrowhead=vee, label=" crea un Thread"];
+  Hilo -> OrdenCtrl [style=dashed, arrowhead=vee];
+  Ctrl1 -> HistorialCtrl [style=dashed, arrowhead=vee];
+  OrdenCtrl -> HistorialCtrl [style=dashed, arrowhead=vee];
+  FacturaCtrl -> HistorialCtrl [style=dashed, arrowhead=vee];
+  Ctrl1 -> Repo [style=dashed, arrowhead=vee];
+  OrdenCtrl -> Repo [style=dashed, arrowhead=vee];
+  FacturaCtrl -> Repo [style=dashed, arrowhead=vee];
+  ReporteCtrl -> Repo [style=dashed, arrowhead=vee];
+  HistorialCtrl -> Repo [style=dashed, arrowhead=vee];
+  Repo -> Modelo [style=dashed, arrowhead=vee, label=" guarda objetos de"];
+  HistorialCtrl -> Modelo [arrowhead=vee, label=" Stack de Operacion"];
+  OrdenCtrl -> Exc [style=dashed, arrowhead=vee, label=" lanza"];
+  FacturaCtrl -> Exc [style=dashed, arrowhead=vee, label=" lanza"];
+}
